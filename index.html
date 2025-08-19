@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Content Labelling Tool</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand">Labelling Tool</div>
+      <div class="controls">
+        <label class="rater-id">
+          Rater ID:
+          <input id="raterIdInput" type="text" placeholder="e.g., rater_01" />
+        </label>
+        <label class="file-upload">
+          <input id="fileInput" type="file" accept=".json" />
+          <span>Upload JSON</span>
+        </label>
+        <button id="exportBtn" class="primary">Export Ratings</button>
+      </div>
+    </header>
+
+    <section class="status-bar">
+      <div id="datasetStatus">No dataset loaded</div>
+      <div class="progress-wrap">
+        <div id="progressText">0/0 labelled</div>
+        <div class="progress">
+          <div id="progressBar" class="progress-bar" style="width: 0%"></div>
+        </div>
+      </div>
+    </section>
+
+    <main class="layout">
+      <aside class="nav">
+        <div class="nav-top">
+          <button id="prevBtn" title="Previous (Left Arrow)">◀ Prev</button>
+          <div id="positionText">Item 0 of 0</div>
+          <button id="nextBtn" class="primary" title="Next (Right Arrow)">
+            Next ▶
+          </button>
+        </div>
+        <div class="jump">
+          <input id="jumpInput" type="number" min="1" placeholder="Jump to #" />
+          <button id="jumpBtn">Go</button>
+        </div>
+      </aside>
+
+      <section class="content">
+        <div class="record-meta">
+          <div><strong>ID:</strong> <span id="metaId">—</span></div>
+          <div><strong>UID:</strong> <span id="metaUid">—</span></div>
+          <label class="flag-toggle">
+            <input id="flagCheckbox" type="checkbox" /> Flag for follow-up
+          </label>
+        </div>
+
+        <div class="panels">
+          <div class="panel">
+            <div class="panel-title">Content</div>
+            <div id="contentText" class="panel-body mono">—</div>
+          </div>
+          <div class="panel">
+            <div class="panel-title">Transcription</div>
+            <div id="transcriptionText" class="panel-body mono text-dim">—</div>
+          </div>
+        </div>
+
+        <form id="ratingsForm" class="ratings" autocomplete="off">
+          <fieldset class="category-grid">
+            <legend>Primary Category (required)</legend>
+            <div class="grid">
+              <!-- Row INF -->
+              <label class="grid-item"
+                ><input type="radio" name="category" value="INF1" /> INF1</label
+              >
+              <label class="grid-item"
+                ><input type="radio" name="category" value="INF2" /> INF2</label
+              >
+              <label class="grid-item"
+                ><input type="radio" name="category" value="INF3" /> INF3</label
+              >
+              <!-- Row TH -->
+              <label class="grid-item"
+                ><input type="radio" name="category" value="TH1" /> TH1</label
+              >
+              <label class="grid-item"
+                ><input type="radio" name="category" value="TH2" /> TH2</label
+              >
+              <label class="grid-item"
+                ><input type="radio" name="category" value="TH3" /> TH3</label
+              >
+              <!-- Row FL -->
+              <label class="grid-item"
+                ><input type="radio" name="category" value="FL1" /> FL1</label
+              >
+              <label class="grid-item"
+                ><input type="radio" name="category" value="FL2" /> FL2</label
+              >
+              <label class="grid-item"
+                ><input type="radio" name="category" value="FL3" /> FL3</label
+              >
+            </div>
+            <div class="hint">
+              Selecting a category containing 2 or 3 will require a Subcategory.
+            </div>
+          </fieldset>
+
+          <fieldset class="valence">
+            <legend>Valence (required)</legend>
+            <label
+              ><input type="radio" name="valence" value="Positive" />
+              Positive</label
+            >
+            <label
+              ><input type="radio" name="valence" value="Negative" />
+              Negative</label
+            >
+            <label
+              ><input type="radio" name="valence" value="Mixed" /> Mixed</label
+            >
+          </fieldset>
+
+          <fieldset id="subcategoryGroup" class="subcategory hidden">
+            <legend>Subcategory (required for categories 2 or 3)</legend>
+            <div class="subcat-columns">
+              <label
+                ><input
+                  type="radio"
+                  name="subcategory"
+                  value="Tastes and Interests"
+                />
+                Tastes and Interests</label
+              >
+              <label
+                ><input
+                  type="radio"
+                  name="subcategory"
+                  value="Attitudes and Opinions"
+                />
+                Attitudes and Opinions</label
+              >
+              <label
+                ><input
+                  type="radio"
+                  name="subcategory"
+                  value="Work or Studies"
+                />
+                Work or Studies</label
+              >
+              <label
+                ><input
+                  type="radio"
+                  name="subcategory"
+                  value="Economic and Social Status"
+                />
+                Economic and Social Status</label
+              >
+              <label
+                ><input
+                  type="radio"
+                  name="subcategory"
+                  value="Interpersonal Relations and Self-Concept"
+                />
+                Interpersonal Relations and Self-Concept</label
+              >
+              <label
+                ><input
+                  type="radio"
+                  name="subcategory"
+                  value="Physical Appearance and Sex"
+                />
+                Physical Appearance and Sex</label
+              >
+              <label
+                ><input type="radio" name="subcategory" value="Other" />
+                Other</label
+              >
+            </div>
+          </fieldset>
+        </form>
+
+        <div class="actions">
+          <button id="clearBtn" class="secondary">Clear Rating</button>
+          <div class="spacer"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="app-footer">
+      <div>
+        Tips: Use ←/→ to navigate. Data autosaves locally. Export JSON when
+        done.
+      </div>
+    </footer>
+
+    <script src="script.js"></script>
+  </body>
+</html>

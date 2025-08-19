@@ -45,6 +45,39 @@
     raterId: "",
   };
 
+  // Return current time as ISO-like string in Australia/Melbourne, e.g. 2025-08-19T14:23:45+10:00 or +11:00 during DST
+  function melbourneNowISO() {
+    const opts = {
+      timeZone: "Australia/Melbourne",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: false,
+      timeZoneName: "longOffset",
+    };
+    const parts = new Intl.DateTimeFormat("en-CA", opts).formatToParts(
+      new Date()
+    );
+    /** @type {Record<string,string>} */
+    const p = {};
+    for (const part of parts) p[part.type] = part.value;
+    const offset = (p.timeZoneName || "GMT+10:00").replace("GMT", "");
+    return `${p.year}-${p.month}-${p.day}T${p.hour}:${p.minute}:${p.second}${offset}`;
+  }
+
+  function propagateRaterIdAcrossRatings() {
+    const current = state.raterId || null;
+    for (const key of Object.keys(state.ratingsById)) {
+      const r = state.ratingsById[key];
+      if (r && r.raterId !== current) {
+        r.raterId = current;
+      }
+    }
+  }
+
   function loadState() {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -202,7 +235,7 @@
       valence: values.valence,
       subcategory: values.needsSub ? values.subcategory : null,
       raterId: state.raterId || null,
-      timestamp: new Date().toISOString(),
+      timestamp: melbourneNowISO(),
     };
     saveState();
     updateProgress();
@@ -229,7 +262,7 @@
       flagged: elements.flagCheckbox ? !!elements.flagCheckbox.checked : false,
       isComplete,
       raterId: state.raterId || null,
-      timestamp: new Date().toISOString(),
+      timestamp: melbourneNowISO(),
     };
     saveState();
     updateProgress();
@@ -266,10 +299,14 @@
 
   // Export
   function exportJson() {
-    const ratings = Object.values(state.ratingsById);
+    // Ensure all ratings carry the current raterId
+    const ratings = Object.values(state.ratingsById).map((r) => ({
+      ...r,
+      raterId: state.raterId || r.raterId || null,
+    }));
     const payload = {
       raterId: state.raterId || null,
-      createdAt: new Date().toISOString(),
+      createdAt: melbourneNowISO(),
       datasetSize: dataset.length,
       ratings,
     };
@@ -361,6 +398,8 @@
 
   on(elements.raterIdInput, "input", () => {
     state.raterId = elements.raterIdInput.value.trim();
+    // Backfill/update raterId on all saved ratings so exports are consistent
+    propagateRaterIdAcrossRatings();
     saveState();
   });
 
@@ -379,6 +418,9 @@
 
   // Init
   loadState();
+  // Backfill raterId into any existing ratings that may have been saved without it
+  propagateRaterIdAcrossRatings();
+  saveState();
   elements.raterIdInput.value = state.raterId || "";
   setDataset([]);
 })();

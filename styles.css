@@ -355,9 +355,9 @@ legend {
   text-align: center;
 }
 .valence {
-  /* Valence: 3 equal-size chips in one row */
+  /* Valence: 2 equal-size chips in one row */
   display: grid;
-  grid-template-columns: repeat(3, 110px);
+  grid-template-columns: repeat(2, 110px);
   gap: 4px;
   justify-content: start;
 }

@@ -120,6 +120,8 @@
       : "No dataset loaded";
     render();
     updateProgress();
+    // Initialize background color
+    updateBackgroundColor(0);
   }
 
   function render() {
@@ -138,6 +140,8 @@
       elements.transcriptionText.textContent = "—";
       elements.positionText.textContent = "Item 0 of 0";
       clearForm();
+      // Reset background to original color when no dataset
+      updateBackgroundColor(0);
       return;
     }
 
@@ -279,6 +283,31 @@
     const pct = total ? Math.round((done / total) * 100) : 0;
     elements.progressText.textContent = `${done}/${total} labelled`;
     elements.progressBar.style.width = `${pct}%`;
+    
+    // Update background color based on progress
+    updateBackgroundColor(pct);
+  }
+
+  function updateBackgroundColor(progressPercent) {
+    // Start with the original dark background (#0f1216)
+    const baseColor = [15, 18, 22]; // RGB values for #0f1216
+    
+    // Pink color to blend towards
+    const pinkColor = [171, 0, 120];
+    
+    // Calculate how much pink to blend in (0 = no pink, 1 = full pink)
+    const pinkIntensity = progressPercent / 100;
+    
+    // Blend the colors
+    const blendedColor = baseColor.map((base, i) => {
+      return Math.round(base + (pinkColor[i] - base) * pinkIntensity);
+    });
+    
+    // Apply the blended color to the body background
+    document.body.style.background = `rgb(${blendedColor[0]}, ${blendedColor[1]}, ${blendedColor[2]})`;
+    
+    // Also update the CSS custom property for consistency
+    document.documentElement.style.setProperty('--bg', `rgb(${blendedColor[0]}, ${blendedColor[1]}, ${blendedColor[2]})`);
   }
 
   // Safe event binding helper (no-op if element missing)

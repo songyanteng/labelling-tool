@@ -35,6 +35,9 @@
     ratingsForm: document.getElementById("ratingsForm"),
     subcategoryGroup: document.getElementById("subcategoryGroup"),
     flagCheckbox: document.getElementById("flagCheckbox"),
+    tooShortCheckbox: document.getElementById("tooShortCheckbox"),
+    promotionalCheckbox: document.getElementById("promotionalCheckbox"),
+    engagementCheckbox: document.getElementById("engagementCheckbox"),
     clearBtn: document.getElementById("clearBtn"),
     saveBtn: document.getElementById("saveBtn"),
     saveNextBtn: document.getElementById("saveNextBtn"),
@@ -162,6 +165,12 @@
     applyToForm(saved || {});
     if (elements.flagCheckbox)
       elements.flagCheckbox.checked = !!(saved && saved.flagged === true);
+    if (elements.tooShortCheckbox)
+      elements.tooShortCheckbox.checked = !!(saved && saved.tooShort === true);
+    if (elements.promotionalCheckbox)
+      elements.promotionalCheckbox.checked = !!(saved && saved.promotional === true);
+    if (elements.engagementCheckbox)
+      elements.engagementCheckbox.checked = !!(saved && saved.engagement === true);
   }
 
   function makeKey(item) {
@@ -205,6 +214,10 @@
   function clearForm() {
     elements.ratingsForm.reset();
     elements.subcategoryGroup.classList.add("hidden");
+    // Reset additional checkboxes
+    if (elements.tooShortCheckbox) elements.tooShortCheckbox.checked = false;
+    if (elements.promotionalCheckbox) elements.promotionalCheckbox.checked = false;
+    if (elements.engagementCheckbox) elements.engagementCheckbox.checked = false;
   }
 
   function toggleSubcategory() {
@@ -214,6 +227,11 @@
   }
 
   function validate(values) {
+    // If "too short to code" is selected, no other validation is needed
+    if (elements.tooShortCheckbox && elements.tooShortCheckbox.checked) {
+      return { ok: true };
+    }
+    
     if (!values.category)
       return { ok: false, message: "Please select a Category." };
     if (!values.valence)
@@ -231,13 +249,20 @@
     const v = validate(values);
     if (!v.ok) return v;
 
+    // If "too short to code" is selected, set other fields to null
+    const isTooShort = elements.tooShortCheckbox && elements.tooShortCheckbox.checked;
+    
     state.ratingsById[key] = {
       itemIndex: index,
       id: item.id ?? null,
       uid: item.uid ?? null,
-      category: values.category,
-      valence: values.valence,
-      subcategory: values.needsSub ? values.subcategory : null,
+      category: isTooShort ? null : values.category,
+      valence: isTooShort ? null : values.valence,
+      subcategory: isTooShort ? null : (values.needsSub ? values.subcategory : null),
+      flagged: elements.flagCheckbox ? !!elements.flagCheckbox.checked : false,
+      tooShort: elements.tooShortCheckbox ? !!elements.tooShortCheckbox.checked : false,
+      promotional: elements.promotionalCheckbox ? !!elements.promotionalCheckbox.checked : false,
+      engagement: elements.engagementCheckbox ? !!elements.engagementCheckbox.checked : false,
       raterId: state.raterId || null,
       timestamp: melbourneNowISO(),
     };
@@ -252,18 +277,25 @@
     const key = makeKey(item);
     const values = getFormValues();
     const isComplete = !!(
-      values.category &&
+      (values.category &&
       values.valence &&
-      (!values.needsSub || values.subcategory)
+      (!values.needsSub || values.subcategory)) ||
+      (elements.tooShortCheckbox && elements.tooShortCheckbox.checked)
     );
+    // If "too short to code" is selected, set other fields to null
+    const isTooShort = elements.tooShortCheckbox && elements.tooShortCheckbox.checked;
+    
     state.ratingsById[key] = {
       itemIndex: index,
       id: item.id ?? null,
       uid: item.uid ?? null,
-      category: values.category || null,
-      valence: values.valence || null,
-      subcategory: values.needsSub ? values.subcategory || null : null,
+      category: isTooShort ? null : (values.category || null),
+      valence: isTooShort ? null : (values.valence || null),
+      subcategory: isTooShort ? null : (values.needsSub ? values.subcategory || null : null),
       flagged: elements.flagCheckbox ? !!elements.flagCheckbox.checked : false,
+      tooShort: elements.tooShortCheckbox ? !!elements.tooShortCheckbox.checked : false,
+      promotional: elements.promotionalCheckbox ? !!elements.promotionalCheckbox.checked : false,
+      engagement: elements.engagementCheckbox ? !!elements.engagementCheckbox.checked : false,
       isComplete,
       raterId: state.raterId || null,
       timestamp: melbourneNowISO(),
@@ -422,6 +454,23 @@
   });
 
   on(elements.flagCheckbox, "change", () => {
+    savePartialProgress();
+  });
+
+  on(elements.tooShortCheckbox, "change", () => {
+    // If "too short to code" is selected, clear other form fields
+    if (elements.tooShortCheckbox.checked) {
+      elements.ratingsForm.reset();
+      elements.subcategoryGroup.classList.add("hidden");
+    }
+    savePartialProgress();
+  });
+
+  on(elements.promotionalCheckbox, "change", () => {
+    savePartialProgress();
+  });
+
+  on(elements.engagementCheckbox, "change", () => {
     savePartialProgress();
   });
 

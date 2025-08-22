@@ -242,11 +242,20 @@ button:disabled {
   display: flex;
   gap: 24px;
   color: var(--text-dim);
+  flex-wrap: wrap;
+  align-items: flex-start;
 }
 .panels {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
+
+.additional-flags {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 .panel {
   background: var(--panel);
@@ -424,6 +433,13 @@ legend {
   border: 1px solid var(--border);
   border-radius: 4px;
   background: #121824;
+}
+
+.flag-toggle + .hint {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
 }
 .actions .spacer {
   flex: 1;

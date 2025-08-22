@@ -151,6 +151,12 @@
           <label class="flag-toggle">
             <input id="flagCheckbox" type="checkbox" /> Flag for follow-up
           </label>
+          <label class="flag-toggle">
+            <input id="tooShortCheckbox" type="checkbox" /> Too short to code
+          </label>
+          <div class="hint">
+            Selecting this will mark the item as complete
+          </div>
         </div>
 
         <div class="panels">
@@ -162,6 +168,15 @@
             <div class="panel-title">Transcription</div>
             <div id="transcriptionText" class="panel-body mono text-dim">—</div>
           </div>
+        </div>
+
+        <div class="additional-flags">
+          <label class="flag-toggle">
+            <input id="promotionalCheckbox" type="checkbox" /> Promotional post
+          </label>
+          <label class="flag-toggle">
+            <input id="engagementCheckbox" type="checkbox" /> Invoking engagement
+          </label>
         </div>
 
         <form id="ratingsForm" class="ratings" autocomplete="off">

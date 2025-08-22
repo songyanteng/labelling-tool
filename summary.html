@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rating Summary Tool</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica,
+          Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: #0f1216;
+        color: #e6ebf0;
+        min-height: 100vh;
+        padding: 20px;
+        margin: 0;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        background: #151a21;
+        border-radius: 15px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border: 1px solid #273142;
+      }
+
+      .header {
+        background: #0d1117;
+        color: #e6ebf0;
+        padding: 30px;
+        text-align: center;
+        border-bottom: 1px solid #273142;
+      }
+
+      .header h1 {
+        font-size: 2.5em;
+        margin-bottom: 10px;
+        font-weight: 600;
+      }
+
+      .header p {
+        font-size: 1.1em;
+        opacity: 0.9;
+      }
+
+      .upload-section {
+        padding: 30px;
+        background: #151a21;
+        border-bottom: 1px solid #273142;
+      }
+
+      .file-input-container {
+        display: flex;
+        gap: 15px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+      }
+
+      .file-input-wrapper {
+        position: relative;
+        flex: 1;
+        min-width: 300px;
+      }
+
+      .file-label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 600;
+        color: #e6ebf0;
+        font-size: 0.9em;
+      }
+
+      .file-input {
+        width: 100%;
+        padding: 15px;
+        border: 2px dashed #4f8cff;
+        border-radius: 10px;
+        background: #1b2330;
+        color: #e6ebf0;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .file-input:hover {
+        border-color: #3f72d1;
+        background: #121824;
+      }
+
+      .file-input:focus {
+        outline: none;
+        border-color: #4f8cff;
+        box-shadow: 0 0 0 3px rgba(79, 140, 255, 0.1);
+      }
+
+      .analyze-btn {
+        background: #4f8cff;
+        color: white;
+        border: 1px solid #3f72d1;
+        padding: 15px 30px;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 1.1em;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+      }
+
+      .analyze-btn:hover {
+        background: #3f72d1;
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(79, 140, 255, 0.3);
+      }
+
+      .analyze-btn:disabled {
+        background: #1b2330;
+        border-color: #273142;
+        color: #a7b0bb;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .results-section {
+        padding: 30px;
+      }
+
+      .summary-stats {
+        background: #0d1117;
+        color: #e6ebf0;
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        text-align: center;
+        border: 1px solid #273142;
+      }
+
+      .summary-stats h2 {
+        font-size: 1.8em;
+        margin-bottom: 15px;
+        font-weight: 300;
+      }
+
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-top: 20px;
+      }
+
+      .stat-item {
+        background: #1b2330;
+        padding: 20px;
+        border-radius: 10px;
+        border: 1px solid #273142;
+      }
+
+      .stat-number {
+        font-size: 2.5em;
+        font-weight: bold;
+        margin-bottom: 5px;
+      }
+
+      .stat-label {
+        font-size: 0.9em;
+        opacity: 0.9;
+      }
+
+      .discrepancies-section {
+        background: #151a21;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        border: 1px solid #273142;
+      }
+
+      .section-header {
+        background: #0d1117;
+        padding: 20px 25px;
+        border-bottom: 1px solid #273142;
+        font-size: 1.3em;
+        font-weight: 600;
+        color: #e6ebf0;
+      }
+
+      .discrepancy-item {
+        padding: 25px;
+        border-bottom: 1px solid #273142;
+        transition: background-color 0.3s ease;
+      }
+
+      .discrepancy-item:hover {
+        background: #1b2330;
+      }
+
+      .discrepancy-item:last-child {
+        border-bottom: none;
+      }
+
+      .item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .item-id {
+        font-size: 1.2em;
+        font-weight: 600;
+        color: #e6ebf0;
+      }
+
+      .item-uid {
+        background: #1b2330;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.9em;
+        color: #a7b0bb;
+        border: 1px solid #273142;
+      }
+
+      .ratings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 15px;
+      }
+
+      .rater-rating {
+        background: #1b2330;
+        padding: 15px;
+        border-radius: 10px;
+        border-left: 4px solid #4f8cff;
+        border: 1px solid #273142;
+      }
+
+      .rater-name {
+        font-weight: 600;
+        color: #4f8cff;
+        margin-bottom: 10px;
+        font-size: 1.1em;
+      }
+
+      .rating-detail {
+        margin: 5px 0;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      .rating-label {
+        font-weight: 500;
+        color: #a7b0bb;
+      }
+
+      .rating-value {
+        font-weight: 600;
+        color: #e6ebf0;
+      }
+
+      .rating-value.agreement {
+        color: #22c55e;
+        background: rgba(34, 197, 94, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(34, 197, 94, 0.3);
+      }
+
+      .rating-value.disagreement {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+        padding: 2px 6px;
+        border-radius: 4px;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+      }
+
+      .item-content {
+        margin-top: 15px;
+        padding: 15px;
+        background: #121824;
+        border-radius: 8px;
+        border: 1px solid #273142;
+      }
+
+      .content-section {
+        margin-bottom: 15px;
+      }
+
+      .content-section:last-child {
+        margin-bottom: 0;
+      }
+
+      .content-label {
+        font-weight: 600;
+        color: #4f8cff;
+        margin-bottom: 8px;
+        font-size: 0.9em;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .content-text {
+        background: #1b2330;
+        padding: 12px;
+        border-radius: 6px;
+        border: 1px solid #273142;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 0.9em;
+        line-height: 1.4;
+        word-break: break-word;
+        color: #e6ebf0;
+      }
+
+      .content-text.empty {
+        color: #a7b0bb;
+        font-style: italic;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 50px;
+        color: #a7b0bb;
+      }
+
+      .spinner {
+        border: 4px solid #273142;
+        border-top: 4px solid #4f8cff;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
+      .error {
+        background: #1b2330;
+        color: #ef4444;
+        padding: 15px;
+        border-radius: 10px;
+        margin: 20px 0;
+        border-left: 4px solid #ef4444;
+        border: 1px solid #273142;
+      }
+
+      .no-discrepancies {
+        text-align: center;
+        padding: 50px;
+        color: #a7b0bb;
+        font-size: 1.2em;
+      }
+
+      .success-icon {
+        font-size: 3em;
+        color: #22c55e;
+        margin-bottom: 20px;
+      }
+
+      @media (max-width: 768px) {
+        .container {
+          margin: 10px;
+          border-radius: 10px;
+        }
+
+        .header {
+          padding: 20px;
+        }
+
+        .header h1 {
+          font-size: 2em;
+        }
+
+        .file-input-container {
+          flex-direction: column;
+        }
+
+        .file-input-wrapper {
+          min-width: auto;
+        }
+
+        .stats-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .ratings-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>Rating Summary Tool</h1>
+      </div>
+
+      <div class="upload-section">
+        <div class="file-input-container">
+          <div class="file-input-wrapper">
+            <label for="masterFileInput" class="file-label"
+              >Master JSON (optional):</label
+            >
+            <input
+              type="file"
+              id="masterFileInput"
+              class="file-input"
+              accept=".json"
+            />
+          </div>
+          <div class="file-input-wrapper">
+            <label for="fileInput" class="file-label">Rating Files:</label>
+            <input
+              type="file"
+              id="fileInput"
+              class="file-input"
+              multiple
+              accept=".json"
+            />
+          </div>
+          <button id="analyzeBtn" class="analyze-btn" disabled>
+            Analyze Ratings
+          </button>
+        </div>
+      </div>
+
+      <div class="results-section" id="resultsSection" style="display: none">
+        <div class="summary-stats">
+          <h2>Summary Statistics</h2>
+          <div class="stats-grid" id="statsGrid">
+            <!-- Stats will be populated here -->
+          </div>
+        </div>
+
+        <div class="discrepancies-section">
+          <div class="section-header">Discrepancies Between Raters</div>
+          <div id="discrepanciesList">
+            <!-- Discrepancies will be populated here -->
+          </div>
+        </div>
+      </div>
+
+      <div class="loading" id="loadingSection" style="display: none">
+        <div class="spinner"></div>
+        <p>Analyzing ratings...</p>
+      </div>
+    </div>
+
+    <script>
+      class RatingAnalyzer {
+        constructor() {
+          this.files = [];
+          this.ratings = [];
+          this.masterData = null;
+          this.initializeEventListeners();
+        }
+
+        initializeEventListeners() {
+          const fileInput = document.getElementById("fileInput");
+          const masterFileInput = document.getElementById("masterFileInput");
+          const analyzeBtn = document.getElementById("analyzeBtn");
+
+          fileInput.addEventListener("change", (e) => {
+            this.files = Array.from(e.target.files);
+            this.updateAnalyzeButton();
+          });
+
+          masterFileInput.addEventListener("change", (e) => {
+            this.updateAnalyzeButton();
+          });
+
+          analyzeBtn.addEventListener("click", () => {
+            this.analyzeRatings();
+          });
+        }
+
+        updateAnalyzeButton() {
+          const analyzeBtn = document.getElementById("analyzeBtn");
+          const ratingFiles = this.files.length > 0;
+          analyzeBtn.disabled = !ratingFiles;
+        }
+
+        async analyzeRatings() {
+          this.showLoading();
+
+          try {
+            // Load master data if provided
+            const masterFileInput = document.getElementById("masterFileInput");
+            if (masterFileInput.files.length > 0) {
+              const masterContent = await this.readFile(
+                masterFileInput.files[0]
+              );
+              this.masterData = JSON.parse(masterContent);
+            }
+
+            // Load all rating files
+            this.ratings = [];
+            for (const file of this.files) {
+              const content = await this.readFile(file);
+              const data = JSON.parse(content);
+              this.ratings.push(data);
+            }
+
+            // Analyze the ratings
+            const analysis = this.performAnalysis();
+            this.displayResults(analysis);
+          } catch (error) {
+            this.showError("Error analyzing ratings: " + error.message);
+          }
+        }
+
+        readFile(file) {
+          return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target.result);
+            reader.onerror = (e) => reject(new Error("Failed to read file"));
+            reader.readAsText(file);
+          });
+        }
+
+        performAnalysis() {
+          // Group ratings by item ID
+          const itemGroups = new Map();
+          let totalRatedItems = 0;
+          let matchedItems = 0;
+
+          for (const ratingData of this.ratings) {
+            const raterId = ratingData.raterId;
+
+            for (const rating of ratingData.ratings) {
+              const itemKey = `${rating.id}_${rating.uid}`;
+
+              if (!itemGroups.has(itemKey)) {
+                totalRatedItems++;
+                // Look up master data for this item
+                let masterItem = null;
+                if (this.masterData) {
+                  masterItem = this.masterData.find(
+                    (item) =>
+                      Number(item.id) === Number(rating.id) &&
+                      String(item.uid) === String(rating.uid)
+                  );
+                  if (masterItem) {
+                    matchedItems++;
+                  }
+                }
+
+                itemGroups.set(itemKey, {
+                  id: rating.id,
+                  uid: rating.uid,
+                  ratings: {},
+                  masterData: masterItem,
+                });
+              }
+
+              itemGroups.get(itemKey).ratings[raterId] = {
+                category: rating.category,
+                valence: rating.valence,
+                subcategory: rating.subcategory,
+              };
+            }
+          }
+
+          console.log(
+            `Master data matching: ${matchedItems}/${totalRatedItems} items matched`
+          );
+          if (this.masterData) {
+            console.log(`Master data contains ${this.masterData.length} items`);
+          }
+
+          // Find discrepancies
+          const discrepancies = [];
+          let totalItems = 0;
+          let matchingItems = 0;
+
+          for (const [itemKey, itemData] of itemGroups) {
+            totalItems++;
+            const raterIds = Object.keys(itemData.ratings);
+
+            if (raterIds.length > 1) {
+              // Check if all raters agree
+              const firstRater = raterIds[0];
+              const firstRating = itemData.ratings[firstRater];
+              let allMatch = true;
+
+              for (const raterId of raterIds) {
+                const rating = itemData.ratings[raterId];
+                if (
+                  rating.category !== firstRating.category ||
+                  rating.valence !== firstRating.valence ||
+                  rating.subcategory !== firstRating.subcategory
+                ) {
+                  allMatch = false;
+                  break;
+                }
+              }
+
+              if (allMatch) {
+                matchingItems++;
+              } else {
+                discrepancies.push(itemData);
+              }
+            } else {
+              // Only one rater, count as matching
+              matchingItems++;
+            }
+          }
+
+          return {
+            totalItems,
+            matchingItems,
+            discrepancyItems: discrepancies.length,
+            discrepancies,
+          };
+        }
+
+        displayResults(analysis) {
+          this.hideLoading();
+
+          // Display summary statistics
+          const statsGrid = document.getElementById("statsGrid");
+          const matchPercentage =
+            analysis.totalItems > 0
+              ? ((analysis.matchingItems / analysis.totalItems) * 100).toFixed(
+                  1
+                )
+              : 0;
+
+          statsGrid.innerHTML = `
+                    <div class="stat-item">
+                        <div class="stat-number">${analysis.totalItems}</div>
+                        <div class="stat-label">Total Items</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${analysis.matchingItems}</div>
+                        <div class="stat-label">Matching Items</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${analysis.discrepancyItems}</div>
+                        <div class="stat-label">Items with Discrepancies</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">${matchPercentage}%</div>
+                        <div class="stat-label">Agreement Rate</div>
+                    </div>
+                `;
+
+          // Display discrepancies
+          const discrepanciesList =
+            document.getElementById("discrepanciesList");
+
+          if (analysis.discrepancies.length === 0) {
+            discrepanciesList.innerHTML = `
+                        <div class="no-discrepancies">
+                            <div class="success-icon">✓</div>
+                            <p>Perfect agreement! All raters provided identical ratings for all items.</p>
+                        </div>
+                    `;
+          } else {
+            discrepanciesList.innerHTML = analysis.discrepancies
+              .map((item) => this.createDiscrepancyHTML(item))
+              .join("");
+          }
+
+          document.getElementById("resultsSection").style.display = "block";
+        }
+
+        createDiscrepancyHTML(item) {
+          const raterIds = Object.keys(item.ratings);
+
+          // Check agreement for each field
+          const categoryAgreement = this.checkFieldAgreement(
+            item.ratings,
+            "category"
+          );
+          const valenceAgreement = this.checkFieldAgreement(
+            item.ratings,
+            "valence"
+          );
+          const subcategoryAgreement = this.checkFieldAgreement(
+            item.ratings,
+            "subcategory"
+          );
+
+          const ratingsHTML = raterIds
+            .map((raterId) => {
+              const rating = item.ratings[raterId];
+              return `
+                          <div class="rater-rating">
+                              <div class="rater-name">${raterId}</div>
+                              <div class="rating-detail">
+                                  <span class="rating-label">Category:</span>
+                                  <span class="rating-value ${
+                                    categoryAgreement
+                                      ? "agreement"
+                                      : "disagreement"
+                                  }">${rating.category || "N/A"}</span>
+                              </div>
+                              <div class="rating-detail">
+                                  <span class="rating-label">Valence:</span>
+                                  <span class="rating-value ${
+                                    valenceAgreement
+                                      ? "agreement"
+                                      : "disagreement"
+                                  }">${rating.valence || "N/A"}</span>
+                              </div>
+                              <div class="rating-detail">
+                                  <span class="rating-label">Subcategory:</span>
+                                  <span class="rating-value ${
+                                    subcategoryAgreement
+                                      ? "agreement"
+                                      : "disagreement"
+                                  }">${rating.subcategory || "N/A"}</span>
+                              </div>
+                          </div>
+                      `;
+            })
+            .join("");
+
+          // Add content and transcription if master data is available
+          let contentHTML = "";
+          if (item.masterData) {
+            const transcription = item.masterData.transcription;
+            const content = item.masterData.content;
+
+            contentHTML = `
+               <div class="item-content">
+                 <div class="content-section">
+                   <div class="content-label">Content</div>
+                   <div class="content-text ${
+                     !content || content === "NaN" ? "empty" : ""
+                   }">
+                     ${
+                       content && content !== "NaN"
+                         ? content
+                         : "No content available"
+                     }
+                   </div>
+                 </div>
+                 <div class="content-section">
+                   <div class="content-label">Transcription</div>
+                   <div class="content-text ${
+                     !transcription || transcription === "NaN" ? "empty" : ""
+                   }">
+                     ${
+                       transcription && transcription !== "NaN"
+                         ? transcription
+                         : "No transcription available"
+                     }
+                   </div>
+                 </div>
+               </div>
+             `;
+          }
+
+          return `
+                     <div class="discrepancy-item">
+                         <div class="item-header">
+                             <div class="item-id">Item ID: ${item.id}</div>
+                             <div class="item-uid">${item.uid}</div>
+                         </div>
+                         <div class="ratings-grid">
+                             ${ratingsHTML}
+                         </div>
+                         ${contentHTML}
+                     </div>
+                 `;
+        }
+
+        showLoading() {
+          document.getElementById("loadingSection").style.display = "block";
+          document.getElementById("resultsSection").style.display = "none";
+        }
+
+        hideLoading() {
+          document.getElementById("loadingSection").style.display = "none";
+        }
+
+        checkFieldAgreement(ratings, fieldName) {
+          const values = Object.values(ratings).map(
+            (rating) => rating[fieldName]
+          );
+          const firstValue = values[0];
+          return values.every((value) => value === firstValue);
+        }
+
+        showError(message) {
+          this.hideLoading();
+          const resultsSection = document.getElementById("resultsSection");
+          resultsSection.innerHTML = `
+                     <div class="error">
+                         <strong>Error:</strong> ${message}
+                     </div>
+                 `;
+          resultsSection.style.display = "block";
+        }
+      }
+
+      // Initialize the analyzer when the page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        new RatingAnalyzer();
+      });
+    </script>
+  </body>
+</html>

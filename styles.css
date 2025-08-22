@@ -51,6 +51,20 @@ body {
   align-items: center;
   gap: 8px;
 }
+.nav-link {
+  color: var(--text);
+  text-decoration: none;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  transition: all 0.2s ease;
+}
+.nav-link:hover {
+  background: var(--primary);
+  border-color: var(--primary-600);
+  color: #fff;
+}
 .controls input[type="text"] {
   padding: 6px 8px;
   border: 1px solid var(--border);
